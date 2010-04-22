@@ -16,17 +16,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+#
+
+include_recipe "mysql::server"
 
 
-if (node[:ec2] && ! FileTest.directory?(node[:mysql][:ec2_path]))
+if node[:ec2]
 
   service "mysql" do
     action :stop
+    not_if do 
+      FileTest.directory?(node[:mysql][:ec2_path]) 
+    end
   end
 
   execute "install-mysql" do
     command "mv #{node[:mysql][:datadir]} #{node[:mysql][:ec2_path]}"
-    not_if do FileTest.directory?(node[:mysql][:ec2_path]) end
+    not_if do 
+      FileTest.directory?(node[:mysql][:ec2_path]) 
+    end
   end
 
   directory node[:mysql][:datadir] do
@@ -39,11 +47,10 @@ if (node[:ec2] && ! FileTest.directory?(node[:mysql][:ec2_path]))
     fstype "none"
     options "bind,rw"
     action :mount
+
+    notifies :restart, resources(:service => :mysql )
   end
 
-  service "mysql" do
-    action :start
-  end
 
 end
 
