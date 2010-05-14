@@ -1,3 +1,4 @@
 tmp/*
 .rake_test_cache
-.*.sw*
+*.swp
+*.swo
